@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)'==''">Debug</Configuration>
-		<ProductName>DD4T.Providers</ProductName>
+		<ProductName>$(MSBuildProjectName)</ProductName>
 
 		<!-- Source Directories -->
 		<BaseDirectory Condition="'$(BaseDirectory)' == ''">$(MSBuildProjectDirectory)</BaseDirectory>
@@ -15,26 +15,24 @@
 		<BuildBinDirectory>$(BuildOutputDirectory)\bin</BuildBinDirectory>
 		<BuildDocDirectory>$(BuildOutputDirectory)\doc</BuildDocDirectory>
 		<BuildLogDirectory>$(BuildOutputDirectory)\log</BuildLogDirectory>
-		<BuildPackageDirectory>$(BuildOutputDirectory)\package</BuildPackageDirectory>
-		<BuildWorkDirectory>$(BuildOutputDirectory)\work</BuildWorkDirectory>
+		<BuildPackageDirectory>$(BuildOutputDirectory)\package\$(ProductName)</BuildPackageDirectory>
+		<BuildWorkDirectory>$(BuildOutputDirectory)\work\$(ProductName)</BuildWorkDirectory>
 		<BuildNuGetDirectory>$(BuildPackageDirectory)\lib</BuildNuGetDirectory>
 		<BuildNuGetFramework40Directory>$(BuildNuGetDirectory)\net40</BuildNuGetFramework40Directory>
 		<BuildNuGetFramework45Directory>$(BuildNuGetDirectory)\net45</BuildNuGetFramework45Directory>
 
-		<DependencyDirectory>$(BaseDirectory)\dependencies</DependencyDirectory>
 		<NuGetFolder>$(SourceDirectory)\.nuget</NuGetFolder>
 
 		<ConfigurationDirectory>$(BaseDirectory)\configuration</ConfigurationDirectory>
 
 		<!-- NuSpec file for NuGet Package creation -->
-		<NuSpecFileName>$(ConfigurationDirectory)\$(ProductName).nuspec</NuSpecFileName>
+		<NuSpecFileName>$(ProductName).nuspec</NuSpecFileName>
+		<NuSpecFile>$(ConfigurationDirectory)\$(NuSpecFileName)</NuSpecFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<CleanFolders Include="$(BuildOutputDirectory)"/>
 		<CleanFolders Include="TestResults"/>
 		<NuGetStructureFolders Include="$(BuildNugetDirectory);$(BuildNuGetFramework40Directory);$(BuildNuGetFramework45Directory)"/>
-		<DependencyFiles Include="$(DependencyDirectory)\**\*.dll"/>
-		<DependencyDirectories Include="@(DependencyFiles->'%(RootDir)%(Directory)'->Distinct())" />
 	</ItemGroup>
 
 	<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
@@ -81,117 +79,56 @@
 		<RemoveDir Directories="@(CleanFolders)" />
 		<MSBuild Projects="$(SolutionFile)" Targets="Clean" />
 	</Target>
-
-	<Target Name="MimicPackages" Inputs="@(DependencyDirectories)" Outputs="%(DependencyDirectories.Directory)" BeforeTargets="PrepareForBuild">
-		<PropertyGroup>
-			<DependencyFilesDirectory>%(DependencyDirectories.Identity)</DependencyFilesDirectory>
-			<FilePath>$([System.IO.Directory]::GetParent(%(DependencyDirectories.Identity)))</FilePath>
-			<DependencyName>$([System.IO.Path]::GetFileName($(FilePath)))</DependencyName>
-			<DependencyNameSafe>$([System.String]::Copy('$(DependencyName)').Replace(' ','-').ToLower())</DependencyNameSafe>
-			<NuSpecFileLocation>$(DependencyFilesDirectory)**\*.nuspec</NuSpecFileLocation>
-		</PropertyGroup>
-		<ItemGroup>
-			<LibFiles Include="$(DependencyFilesDirectory)**\*.dll;$(DependencyFilesDirectory)**\*.xml;$(DependencyFilesDirectory)**\*.pdb" />
-			<MimicNuSpecFile Include="$(NuSpecFileLocation)"/>
-		</ItemGroup>
-		<PropertyGroup>
-			<NuSpecFileLocation>%(MimicNuSpecFile.Identity)</NuSpecFileLocation>
-		</PropertyGroup>
-
-		<Message Text="Creating nuget package directory $(DependencyNameSafe)" />
-		<Message Text="$(NuSpecFileLocation)" />
-
-		<XmlPeek
-			Namespaces="&lt;Namespace Prefix='nuget' Uri='http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd' /&gt;"
-			Query="//version/text()"
-			XmlInputPath="$(NuSpecFileLocation)">
-			<Output TaskParameter="Result" ItemName="PackageVersion" />
-		</XmlPeek>
-
-		<Message Text="Discovered package version @(PackageVersion)" />
-
-		<PropertyGroup>
-			<NPackageName>$(DependencyNameSafe).@(PackageVersion)</NPackageName>
-			<NPackageDirectory>$(SourceDirectory)\packages\$(NPackageName)</NPackageDirectory>
-			<NPackageBuildDirectory>$(BuildOutputDirectory)\$(NPackageName)</NPackageBuildDirectory>
-		</PropertyGroup>
-
-		<Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(NPackageDirectory)\lib\net40\%(Filename)%(Extension)')" />
-		<Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(NPackageDirectory)\lib\net45\%(Filename)%(Extension)')" />
-
-		<Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(NPackageBuildDirectory)\lib\net40\%(Filename)%(Extension)')" />
-		<Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(NPackageBuildDirectory)\lib\net45\%(Filename)%(Extension)')" />
-
-		<Copy SourceFiles="@(MimicNuSpecFile)" DestinationFiles="@(MimicNuSpecFile->'$(NPackageBuildDirectory)\$(DependencyNameSafe).nuspec')" />
-
-		<Exec Command="$(NuGetFolder)\nuget.exe pack $(DependencyNameSafe).nuspec" WorkingDirectory="$(NPackageBuildDirectory)" />
-
-		<ItemGroup>
-			<MimicPackage Include="$(NPackageBuildDirectory)\*.nupkg"/>
-		</ItemGroup>
-
-		<Copy SourceFiles="@(MimicPackage)" DestinationFiles="@(MimicPackage->'$(NPackageDirectory)\$(NPackageName)%(Extension)')" />
-
-		<RemoveDir Directories="$(NPackageBuildDirectory)" />
-	</Target>
-
 	<Target Name="Package">
 		<ItemGroup>
 			<PackageFilesCleanup Include="$(BuildPackageDirectory)\**\*.*"/>
 		</ItemGroup>
 		<Delete Files="@(PackageFilesCleanup)" />
+		
+		<MakeDir Directories="@(NuGetStructureFolders)"/>
 
-		<!-- Package builds the zip files, NuGet packages, and MSI files for the project. -->
 		<ItemGroup>
-			<BinFiles Include="$(BuildBinDirectory)\**\*.*" />
-		</ItemGroup>
-
-		<!-- Flatten file structure -->		
-		<Copy SourceFiles="@(BinFiles)" DestinationFiles="@(BinFiles->'$(BuildWorkDirectory)\%(Filename)%(Extension)')"/>
-		<ItemGroup>
-			<PackageFiles Include="$(BuildWorkDirectory)\**\*.dll;$(BuildWorkDirectory)\**\*.pdb;$(BuildWorkDirectory)\**\*.xml;"/>
-		</ItemGroup>
-
-		<!-- Build NuGet package structure -->
-		<MakeDir Directories="@(NuGetStructureFolders)" />
-		<Copy SourceFiles="@(PackageFiles)" DestinationFiles="@(PackageFiles->'$(BuildNuGetFramework40Directory)\%(Filename)%(Extension)')" />
-		<Copy SourceFiles="@(PackageFiles)" DestinationFiles="@(PackageFiles->'$(BuildNuGetFramework45Directory)\%(Filename)%(Extension)')" />
-		<!-- Copy nuspec file -->
-		<Copy SourceFiles="$(NuSpecFileName)" DestinationFolder="$(BuildPackageDirectory)" />
-
+        	<MainPackageFiles Include="$(BuildBinDirectory)\**\*.dll;$(BuildBinDirectory)\**\*.pdb;$(BuildBinDirectory)\**\*.xml" Exclude="$(BuildBinDirectory)\**\*CodeAnalysis*.xml"/>
+        </ItemGroup>
+    	
     	<!-- Get the productversion from the assemblies -->
-    	<GetInformationalVersion AssemblyFile="@(PackageFiles)">
+    	<GetInformationalVersion AssemblyFile="@(MainPackageFiles)">
     		<Output TaskParameter="Version" PropertyName="VersionInfo"/>
     	</GetInformationalVersion>
 
+		<!-- Get the productversion from the assemblies -->
     	<GetNewDevVersion OldVersion="$(VersionInfo)" Condition="'$(Configuration)' == 'Debug'">
     		<Output TaskParameter="NewVersion" PropertyName="VersionInfo"/>
     	</GetNewDevVersion>
+		<Message Text="Got a new version: $(VersionInfo)"  Importance="High"/>
+        <ItemGroup>
+        	<NuGetFiles Include="$(NuSpecFile)"/>
+        </ItemGroup>
 
-		<PropertyGroup>
-			<NuSpecFile>$(BuildPackageDirectory)\$(ProductName).nuspec</NuSpecFile>
-		</PropertyGroup>
+    	<Copy SourceFiles="@(NuGetFiles)" DestinationFiles="@(NuGetFiles->'$(BuildPackageDirectory)\%(Filename)%(Extension)')"/>
+    	<Copy SourceFiles="@(MainPackageFiles)" DestinationFiles="@(MainPackageFiles->'$(BuildBinDirectory)\%(Filename)%(Extension)')"/>
 
-		<!-- Update version in nuspec file -->
-		<XmlUpdate XmlFileName="$(NuSpecFile)" XPath="//version" Value="$(VersionInfo)" />
+    	<PropertyGroup>
+    		<NuSpecFile>$(BuildPackageDirectory)\$(NuSpecFileName)</NuSpecFile>
+    	</PropertyGroup>
 
-		<!-- Create NuGet package -->
-		<Exec Command='$(NuGetFolder)\nuget.exe pack "$(NuSpecFile)"' WorkingDirectory="$(BuildPackageDirectory)"/>
+    	<!-- Update version in nuspec file -->
+    	<XmlUpdate XmlFileName="$(NuSpecFile)" XPath="//version" Value="$(VersionInfo)" />
 
-		<XmlPeek
-			Namespaces="&lt;Namespace Prefix='nuget' Uri='http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd' /&gt;"
-			Query="//id/text()"
-			XmlInputPath="$(NuSpecFile)">
-			<Output TaskParameter="Result" ItemName="PackageName" />
-		</XmlPeek>
+		<Copy SourceFiles="@(MainPackageFiles)" DestinationFiles="@(MainPackageFiles->'$(BuildNuGetFramework40Directory)\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(MainPackageFiles)" DestinationFiles="@(MainPackageFiles->'$(BuildNuGetFramework45Directory)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-		<!-- Create ZipPackage -->
-		<Zip Files="@(PackageFiles)" ZipFileName="$(BuildPackageDirectory)\@(PackageName).$(VersionInfo).zip" WorkingDirectory="$(BuildWorkDirectory)" />
+    	<!-- Create NuGet package -->
+    	<Exec Command='..\$(NuGetFolder)\nuget.exe pack "$(ProductName).nuspec"' WorkingDirectory="$(BuildPackageDirectory)"/>
 
-		<!-- Remove temporary files -->
-		<RemoveDir Directories="$(BuildNugetDirectory)" />
-		<RemoveDir Directories="$(BuildWorkDirectory)" />
-		<Delete Files="$(NuSpecFile)" />
+    	<Delete Files="$(NuSpecFile)" />
+
+    	<!-- Create ZipPackage -->
+		<Zip Files="@(MainPackageFiles)" ZipFileName="$(BuildPackageDirectory)\$(ProductName).$(VersionInfo).zip" WorkingDirectory="$(BuildBinDirectory)" />
+
+    	<RemoveDir Directories="$(BuildWorkDirectory)" />
+    	<RemoveDir Directories="$(BuildBinDirectory)" />
+    	<RemoveDir Directories="$(BuildNuGetDirectory)" />
 	</Target>
 
 	<Target Name="Install">
