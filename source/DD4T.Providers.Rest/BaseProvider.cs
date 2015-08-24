@@ -59,15 +59,26 @@ namespace DD4T.Providers.Rest
 
                 var message = new HttpRequestMessage(HttpMethod.Get, urlParameters);
 
-                // read all http cookies and add it to the request. 
+                 // read all http cookies and add it to the request. 
                 // needed to enable session preview functionality
-                var cookies = System.Web.HttpContext.Current.Request.Cookies;
-                var strBuilder = new StringBuilder();
-                foreach(var item in cookies.AllKeys)
+                try
                 {
-                    strBuilder.Append(string.Format("{0}={1};", item, cookies[item].Value));
+                    if(System.Web.HttpContext.Current != null)
+                    {
+                        var cookies = System.Web.HttpContext.Current.Request.Cookies;
+                        var strBuilder = new StringBuilder();
+                        foreach (var item in cookies.AllKeys)
+                        {
+                            strBuilder.Append(string.Format("{0}={1};", item, cookies[item].Value));
+                        }
+                        message.Headers.Add("Cookie", strBuilder.ToString());
+                    }
                 }
-                message.Headers.Add("Cookie", strBuilder.ToString());
+                catch(Exception e)
+                {
+                    Logger.Warning("HttpContext is not initialized yet..");
+                }
+                
                 var result = client.SendAsync(message).Result;
                 if(result.IsSuccessStatusCode)
                 {
