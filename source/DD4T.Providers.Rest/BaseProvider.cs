@@ -3,7 +3,6 @@ using DD4T.ContentModel.Contracts.Logging;
 using DD4T.ContentModel.Contracts.Providers;
 using DD4T.ContentModel.Contracts.Resolvers;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -74,7 +73,7 @@ namespace DD4T.Providers.Rest
                         message.Headers.Add("Cookie", strBuilder.ToString());
                     }
                 }
-                catch(Exception e)
+                catch
                 {
                     Logger.Warning("HttpContext is not initialized yet..");
                 }
