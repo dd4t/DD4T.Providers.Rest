@@ -12,8 +12,8 @@ namespace DD4T.Providers.Rest
     public class TridionBinaryProvider : BaseProvider, IBinaryProvider
     {
         private const string controller = "binary";
-        public TridionBinaryProvider(IProvidersCommonServices commonServices)
-            :base(commonServices)
+        public TridionBinaryProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            :base(commonServices, httpClientFactory)
         {
 
         }

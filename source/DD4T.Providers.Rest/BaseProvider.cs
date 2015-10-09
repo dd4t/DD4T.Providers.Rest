@@ -19,12 +19,18 @@ namespace DD4T.Providers.Rest
         protected readonly ILogger Logger;
         protected readonly IDD4TConfiguration Configuration;
 
-        public BaseProvider(IProvidersCommonServices commonServices)
+        private readonly IHttpMessageHandlerFactory _httpClientFactory;
+
+        public BaseProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
         {
             if (commonServices == null)
                 throw new ArgumentNullException("commonServices");
 
+            if (httpClientFactory == null)
+                throw new ArgumentNullException("httpClientFactory");
+
             Logger = commonServices.Logger;
+            _httpClientFactory = httpClientFactory;
             _publicationResolver = commonServices.PublicationResolver;
             Configuration = commonServices.Configuration;
 
@@ -48,17 +54,19 @@ namespace DD4T.Providers.Rest
 
         public T Execute<T>(string urlParameters)
         {  
+            HttpClientHandler messageHandler = new HttpClientHandler() { UseCookies = false };
+            var pipeline = this._httpClientFactory.CreatePipeline(messageHandler);
 
-            using (var handler = new HttpClientHandler { UseCookies = false })
-            using (var client = new HttpClient(handler) { BaseAddress = new Uri(Configuration.ContentProviderEndPoint) })
+            using (var client = HttpClientFactory.Create(pipeline))
             {
+                client.BaseAddress = new Uri(Configuration.ContentProviderEndPoint);
                 // Add an Accept header for JSON format.
                 client.DefaultRequestHeaders.Accept.Add(
                      new MediaTypeWithQualityHeaderValue("application/json"));
 
                 var message = new HttpRequestMessage(HttpMethod.Get, urlParameters);
 
-                 // read all http cookies and add it to the request. 
+                // read all http cookies and add it to the request. 
                 // needed to enable session preview functionality
                 try
                 {

@@ -13,8 +13,8 @@ namespace DD4T.Providers.Rest
     public class TridionPageProvider : BaseProvider, IPageProvider
     {
         private const string controller = "page";
-        public TridionPageProvider(IProvidersCommonServices commonServices)
-            :base(commonServices)
+        public TridionPageProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            :base(commonServices, httpClientFactory)
         {
 
         }

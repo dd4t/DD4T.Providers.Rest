@@ -11,8 +11,8 @@ namespace DD4T.Providers.Rest
     public class TridionComponentPresentationProvider : BaseProvider, IComponentPresentationProvider
     {
         private const string controller = "componentpresentation";
-        public TridionComponentPresentationProvider(IProvidersCommonServices commonServices)
-            : base(commonServices)
+        public TridionComponentPresentationProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            : base(commonServices, httpClientFactory)
         {
 
         }

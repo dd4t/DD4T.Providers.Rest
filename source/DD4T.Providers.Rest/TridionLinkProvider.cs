@@ -11,8 +11,8 @@ namespace DD4T.Providers.Rest
     public class TridionLinkProvider : BaseProvider, ILinkProvider
     {
         private const string controller = "link";
-        public TridionLinkProvider(IProvidersCommonServices commonServices)
-            :base(commonServices)
+        public TridionLinkProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            :base(commonServices, httpClientFactory)
         {
 
         }
