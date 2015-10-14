@@ -19,18 +19,18 @@ namespace DD4T.Providers.Rest
         protected readonly ILogger Logger;
         protected readonly IDD4TConfiguration Configuration;
 
-        private readonly IHttpMessageHandlerFactory _httpClientFactory;
+        private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
 
-        public BaseProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+        public BaseProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpMessageHandlerFactory)
         {
             if (commonServices == null)
                 throw new ArgumentNullException("commonServices");
 
-            if (httpClientFactory == null)
-                throw new ArgumentNullException("httpClientFactory");
+            if (httpMessageHandlerFactory == null)
+                throw new ArgumentNullException("httpMessageHandlerFactory");
 
             Logger = commonServices.Logger;
-            _httpClientFactory = httpClientFactory;
+            _httpMessageHandlerFactory = httpMessageHandlerFactory;
             _publicationResolver = commonServices.PublicationResolver;
             Configuration = commonServices.Configuration;
 
@@ -55,7 +55,7 @@ namespace DD4T.Providers.Rest
         public T Execute<T>(string urlParameters)
         {  
             HttpClientHandler messageHandler = new HttpClientHandler() { UseCookies = false };
-            var pipeline = this._httpClientFactory.CreatePipeline(messageHandler);
+            var pipeline = this._httpMessageHandlerFactory.CreatePipeline(messageHandler);
 
             using (var client = HttpClientFactory.Create(pipeline))
             {
