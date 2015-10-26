@@ -30,7 +30,7 @@ namespace DD4T.Providers.Rest
             var pageUri = new TcmUri(sourcePageUri);
             var templateUri = new TcmUri(excludeComponentTemplateUri);
 
-            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, PublicationId, pageUri.ItemId, compUri.ItemId, templateUri.ItemId);
+            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, PublicationId, compUri.ItemId, pageUri.ItemId, templateUri.ItemId);
             return Execute<string>(urlParameters);
         }
     }

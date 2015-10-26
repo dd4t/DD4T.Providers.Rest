@@ -9,7 +9,6 @@ namespace DD4T.Providers.Rest
 {
     public class DefaultHttpMessageHandlerFactory : IHttpMessageHandlerFactory
     {
-
         public HttpMessageHandler CreatePipeline(HttpMessageHandler innerhandler)
         {
             var emptyList = new List<DelegatingHandler>();
