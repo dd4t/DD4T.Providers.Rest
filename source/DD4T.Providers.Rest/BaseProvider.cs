@@ -36,6 +36,19 @@ namespace DD4T.Providers.Rest
 
         }
 
+        //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
+        //The DI needs to be upgraded for the registeration. below code prevent a runtime error in case that the DI is not upgraded.
+        public BaseProvider(IProvidersCommonServices commonServices)
+        {
+            if (commonServices == null)
+                throw new ArgumentNullException("commonServices");
+
+            Logger = commonServices.Logger;
+            _httpMessageHandlerFactory = new DefaultHttpMessageHandlerFactory();
+            _publicationResolver = commonServices.PublicationResolver;
+            Configuration = commonServices.Configuration;
+        }
+
         private int publicationId = 0;
         public int PublicationId
         {

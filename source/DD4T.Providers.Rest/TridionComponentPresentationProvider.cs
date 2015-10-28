@@ -16,6 +16,13 @@ namespace DD4T.Providers.Rest
         {
 
         }
+        //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
+        //The DI needs to be upgraded for the registeration. below code prevent a runtime error in case that the DI is not upgraded.
+        public TridionComponentPresentationProvider(IProvidersCommonServices commonServices)
+            : base(commonServices)
+        {
+
+        }
         public string GetContent(string uri, string templateUri = "")
         {
 

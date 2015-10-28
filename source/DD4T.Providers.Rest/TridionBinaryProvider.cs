@@ -17,6 +17,13 @@ namespace DD4T.Providers.Rest
         {
 
         }
+        //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
+        //The DI needs to be upgraded for the registeration. below code prevent a runtime error in case that the DI is not upgraded.
+        public TridionBinaryProvider(IProvidersCommonServices commonServices)
+            : base(commonServices)
+        {
+
+        }
 
         public byte[] GetBinaryByUri(string uri)
         {
