@@ -11,6 +11,13 @@ namespace DD4T.Providers.Rest
     public class TridionComponentPresentationProvider : BaseProvider, IComponentPresentationProvider
     {
         private const string controller = "componentpresentation";
+        public TridionComponentPresentationProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            : base(commonServices, httpClientFactory)
+        {
+
+        }
+        //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
+        //The DI needs to be upgraded for the registeration. below code prevent a runtime error in case that the DI is not upgraded.
         public TridionComponentPresentationProvider(IProvidersCommonServices commonServices)
             : base(commonServices)
         {

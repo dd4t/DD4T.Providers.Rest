@@ -88,6 +88,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseProvider.cs" />
+    <Compile Include="DefaultHttpMessageHandlerFactory.cs" />
+    <Compile Include="IHttpMessageHandlerFactory.cs" />
     <Compile Include="ProvidersCommonServices.cs" />
     <Compile Include="TridionBinaryProvider.cs" />
     <Compile Include="TridionComponentPresentationProvider.cs" />

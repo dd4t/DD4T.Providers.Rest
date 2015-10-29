@@ -11,8 +11,15 @@ namespace DD4T.Providers.Rest
     public class TridionLinkProvider : BaseProvider, ILinkProvider
     {
         private const string controller = "link";
+        public TridionLinkProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpClientFactory)
+            :base(commonServices, httpClientFactory)
+        {
+
+        }
+        //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
+        //The DI needs to be upgraded for the registeration. below code prevent a runtime error in case that the DI is not upgraded.
         public TridionLinkProvider(IProvidersCommonServices commonServices)
-            :base(commonServices)
+            : base(commonServices)
         {
 
         }
@@ -30,7 +37,7 @@ namespace DD4T.Providers.Rest
             var pageUri = new TcmUri(sourcePageUri);
             var templateUri = new TcmUri(excludeComponentTemplateUri);
 
-            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, PublicationId, pageUri.ItemId, compUri.ItemId, templateUri.ItemId);
+            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, PublicationId, compUri.ItemId, pageUri.ItemId, templateUri.ItemId);
             return Execute<string>(urlParameters);
         }
     }
