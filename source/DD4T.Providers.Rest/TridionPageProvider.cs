@@ -2,6 +2,7 @@
 using DD4T.ContentModel.Contracts.Providers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,12 +28,15 @@ namespace DD4T.Providers.Rest
         }
         public string GetContentByUrl(string url)
         {
-            var a = url.Split('.');
-            string urlParameters = string.Format("{0}/GetContentByUrl/{1}/{2}/{3}", controller, PublicationId, a.Last(), a.First());
+            //var a = url.Split('.');
+            var fileName = Path.GetFileNameWithoutExtension(url);
+            var extension = Path.GetExtension(url);
+
+            string urlParameters = string.Format("{0}/GetContentByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<string>(urlParameters);
         }
-
+            
         public string GetContentByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
@@ -42,8 +46,10 @@ namespace DD4T.Providers.Rest
 
         public DateTime GetLastPublishedDateByUrl(string url)
         {
-            var a = url.Split('.');
-            string urlParameters = string.Format("{0}/GetLastPublishedDateByUrl/{1}/{2}/{3}", controller, PublicationId, a.Last(), a.First());
+            //var a = url.Split('.');
+            var fileName = Path.GetFileNameWithoutExtension(url);
+            var extension = Path.GetExtension(url);
+            string urlParameters = string.Format("{0}/GetLastPublishedDateByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<DateTime>(urlParameters);
         }

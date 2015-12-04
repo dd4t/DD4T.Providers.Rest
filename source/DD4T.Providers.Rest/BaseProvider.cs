@@ -66,7 +66,13 @@ namespace DD4T.Providers.Rest
         }
 
         public T Execute<T>(string urlParameters)
-        {  
+        {
+            // add '/' at the end of url. needed to support '.' in the url the slash will be strip out in the 
+            // DD4T.RestService.WebApi 
+
+            if (!urlParameters.EndsWith("/"))
+                urlParameters = string.Format("{0}/", urlParameters);
+
             HttpClientHandler messageHandler = new HttpClientHandler() { UseCookies = false };
             var pipeline = this._httpMessageHandlerFactory.CreatePipeline(messageHandler);
 
@@ -89,7 +95,9 @@ namespace DD4T.Providers.Rest
                         var strBuilder = new StringBuilder();
                         foreach (var item in cookies.AllKeys)
                         {
-                            strBuilder.Append(string.Format("{0}={1};", item, cookies[item].Value));
+                            var currentKey = string.Format("{0}={1};", item, cookies[item].Value);
+                            Logger.Debug("RequestCookie found -> forwarding cookie -> {0}", currentKey);
+                            strBuilder.Append(currentKey);
                         }
                         message.Headers.Add("Cookie", strBuilder.ToString());
                     }
