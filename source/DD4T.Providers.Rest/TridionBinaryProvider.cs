@@ -34,8 +34,11 @@ namespace DD4T.Providers.Rest
 
         public byte[] GetBinaryByUrl(string url)
         {
-            var a = url.Split('.');
-            string urlParameters = string.Format("{0}/GetBinaryByUrl/{1}/{2}/{3}", controller, PublicationId, a.Last(), a.First());
+            //var a = url.Split('.');
+            var fileName = Path.GetFileNameWithoutExtension(url);
+            var extension = Path.GetExtension(url);
+
+            string urlParameters = string.Format("{0}/GetBinaryByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<byte[]>(urlParameters);
         }
@@ -49,16 +52,22 @@ namespace DD4T.Providers.Rest
 
         public Stream GetBinaryStreamByUrl(string url)
         {
-            var a = url.Split('.');
-            string urlParameters = string.Format("{0}/GetBinaryStreamByUrl/{1}/{2}/{3}", controller, PublicationId, a.Last(), a.First());
+            //var a = url.Split('.');
+            var fileName = Path.GetFileNameWithoutExtension(url);
+            var extension = Path.GetExtension(url);
+
+            string urlParameters = string.Format("{0}/GetBinaryStreamByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<Stream>(urlParameters);
         }
 
         public DateTime GetLastPublishedDateByUrl(string url)
         {
-            var a = url.Split('.');
-            string urlParameters = string.Format("{0}/GetLastPublishedDateByUrl/{1}/{2}/{3}", controller, PublicationId, a.Last(), a.First());
+            //var a = url.Split('.');
+            var fileName = Path.GetFileNameWithoutExtension(url);
+            var extension = Path.GetExtension(url);
+
+            string urlParameters = string.Format("{0}/GetLastPublishedDateByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<DateTime>(urlParameters);
         }
