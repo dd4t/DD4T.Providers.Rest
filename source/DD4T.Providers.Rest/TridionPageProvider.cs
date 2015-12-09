@@ -28,9 +28,9 @@ namespace DD4T.Providers.Rest
         }
         public string GetContentByUrl(string url)
         {
-            //var a = url.Split('.');
-            var fileName = Path.GetFileNameWithoutExtension(url);
-            var extension = Path.GetExtension(url);
+            var dotIndex = url.LastIndexOf('.');
+            var extension = url.Substring(dotIndex + 1);
+            var fileName = url.Substring(0, dotIndex);
 
             string urlParameters = string.Format("{0}/GetContentByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
@@ -47,8 +47,10 @@ namespace DD4T.Providers.Rest
         public DateTime GetLastPublishedDateByUrl(string url)
         {
             //var a = url.Split('.');
-            var fileName = Path.GetFileNameWithoutExtension(url);
-            var extension = Path.GetExtension(url);
+            var dotIndex = url.LastIndexOf('.');
+            var extension = url.Substring(dotIndex + 1);
+            var fileName = url.Substring(0, dotIndex);
+
             string urlParameters = string.Format("{0}/GetLastPublishedDateByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
             return Execute<DateTime>(urlParameters);
