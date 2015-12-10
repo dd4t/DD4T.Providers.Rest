@@ -40,7 +40,7 @@ namespace DD4T.Providers.Rest
         public string GetContentByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetContentByUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetContentByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<string>(urlParameters);
         }
 
@@ -59,7 +59,7 @@ namespace DD4T.Providers.Rest
         public DateTime GetLastPublishedDateByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetLastPublishedDateByUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetLastPublishedDateByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<DateTime>(urlParameters);
         }
 

@@ -28,7 +28,7 @@ namespace DD4T.Providers.Rest
         public byte[] GetBinaryByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetContentByUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetContentByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<byte[]>(urlParameters);
         }
 
@@ -46,7 +46,7 @@ namespace DD4T.Providers.Rest
         public Stream GetBinaryStreamByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetBinaryStreamByUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetBinaryStreamByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<Stream>(urlParameters);
         }
 
@@ -75,14 +75,14 @@ namespace DD4T.Providers.Rest
         public DateTime GetLastPublishedDateByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetLastPublishedDateByUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetLastPublishedDateByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<DateTime>(urlParameters);
         }
 
         public string GetUrlForUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetUrlForUri/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/GetUrlForUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<string>(urlParameters);
         }
     }
