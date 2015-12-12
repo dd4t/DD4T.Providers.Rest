@@ -43,6 +43,7 @@ namespace DD4T.Providers.Rest
             return Execute<byte[]>(urlParameters);
         }
 
+        [Obsolete("Retrieving binaries as a stream will be removed from the next version of DD4T")]
         public Stream GetBinaryStreamByUri(string uri)
         {
             TcmUri tcmUri = new TcmUri(uri);
@@ -50,6 +51,7 @@ namespace DD4T.Providers.Rest
             return Execute<Stream>(urlParameters);
         }
 
+        [Obsolete("Retrieving binaries as a stream will be removed from the next version of DD4T")]
         public Stream GetBinaryStreamByUrl(string url)
         {
             var dotIndex = url.LastIndexOf('.');
