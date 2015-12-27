@@ -26,7 +26,7 @@ namespace DD4T.Providers.Rest
         public string ResolveLink(string componentUri)
         {
             TcmUri tcmUri = new TcmUri(componentUri);
-            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}", controller, PublicationId, tcmUri.ItemId);
+            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<string>(urlParameters);
         }
 
@@ -37,7 +37,7 @@ namespace DD4T.Providers.Rest
             var pageUri = new TcmUri(sourcePageUri);
             var templateUri = new TcmUri(excludeComponentTemplateUri);
 
-            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, PublicationId, compUri.ItemId, pageUri.ItemId, templateUri.ItemId);
+            string urlParameters = string.Format("{0}/ResolveLink/{1}/{2}/{3}/{4}", controller, compUri.PublicationId, compUri.ItemId, pageUri.ItemId, templateUri.ItemId);
             return Execute<string>(urlParameters);
         }
     }

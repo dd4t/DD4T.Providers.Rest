@@ -25,10 +25,10 @@ namespace DD4T.Providers.Rest
         }
         public string GetContent(string uri, string templateUri = "")
         {
-
+            var tcmUri = new TcmUri(uri);
             string urlParameters = string.IsNullOrEmpty(templateUri) ?
-                string.Format("{0}/GetContent/{1}/{2}", controller, PublicationId, new TcmUri(uri).ItemId) :
-                string.Format("{0}/GetContent/{1}/{2}/{3}", controller, PublicationId, new TcmUri(uri).ItemId, new TcmUri(templateUri).ItemId);
+                string.Format("{0}/GetContent/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId) :
+                string.Format("{0}/GetContent/{1}/{2}/{3}", controller, tcmUri.PublicationId, tcmUri.ItemId, new TcmUri(templateUri).ItemId);
 
             return Execute<string>(urlParameters);
         }
@@ -36,7 +36,7 @@ namespace DD4T.Providers.Rest
         public DateTime GetLastPublishedDate(string uri)
         {
             TcmUri componentUri = new TcmUri(uri);
-            string urlParameters = string.Format("{0}/GetLastPublishedDate/{1}/{2}", controller, PublicationId, componentUri.ItemId);
+            string urlParameters = string.Format("{0}/GetLastPublishedDate/{1}/{2}", controller, componentUri.PublicationId, componentUri.ItemId);
             return Execute<DateTime>(urlParameters);
         }
 
