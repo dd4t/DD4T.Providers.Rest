@@ -87,5 +87,24 @@ namespace DD4T.Providers.Rest
             string urlParameters = string.Format("{0}/GetUrlForUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
             return Execute<string>(urlParameters);
         }
+
+
+        public IBinaryMeta GetBinaryMetaByUri(string uri)
+        {
+            TcmUri tcmUri = new TcmUri(uri);
+            string urlParameters = string.Format("{0}/GetBinaryMetaByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
+            return Execute<IBinaryMeta>(urlParameters);
+        }
+
+        public IBinaryMeta GetBinaryMetaByUrl(string url)
+        {
+            var dotIndex = url.LastIndexOf('.');
+            var extension = url.Substring(dotIndex + 1);
+            var fileName = url.Substring(0, dotIndex);
+
+            string urlParameters = string.Format("{0}/GetBinaryMetaByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
+            //returns the content or empty string.
+            return Execute<IBinaryMeta>(urlParameters);
+        }
     }
 }
