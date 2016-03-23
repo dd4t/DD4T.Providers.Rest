@@ -93,7 +93,7 @@ namespace DD4T.Providers.Rest
         {
             TcmUri tcmUri = new TcmUri(uri);
             string urlParameters = string.Format("{0}/GetBinaryMetaByUri/{1}/{2}", controller, tcmUri.PublicationId, tcmUri.ItemId);
-            return Execute<IBinaryMeta>(urlParameters);
+            return Execute<BinaryMeta>(urlParameters);
         }
 
         public IBinaryMeta GetBinaryMetaByUrl(string url)
@@ -104,7 +104,7 @@ namespace DD4T.Providers.Rest
 
             string urlParameters = string.Format("{0}/GetBinaryMetaByUrl/{1}/{2}/{3}", controller, PublicationId, extension, fileName);
             //returns the content or empty string.
-            return Execute<IBinaryMeta>(urlParameters);
+            return Execute<BinaryMeta>(urlParameters);
         }
     }
 }
