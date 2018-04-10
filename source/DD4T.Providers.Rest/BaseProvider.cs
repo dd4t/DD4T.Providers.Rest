@@ -3,13 +3,9 @@ using DD4T.ContentModel.Contracts.Logging;
 using DD4T.ContentModel.Contracts.Providers;
 using DD4T.ContentModel.Contracts.Resolvers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DD4T.Providers.Rest
 {
@@ -20,6 +16,10 @@ namespace DD4T.Providers.Rest
         protected readonly IDD4TConfiguration Configuration;
 
         private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
+
+        private readonly HttpClient client;
+        private readonly HttpMessageHandler pipeline;
+        private readonly HttpClientHandler messageHandler;
 
         public BaseProvider(IProvidersCommonServices commonServices, IHttpMessageHandlerFactory httpMessageHandlerFactory)
         {
@@ -34,6 +34,12 @@ namespace DD4T.Providers.Rest
             _publicationResolver = commonServices.PublicationResolver;
             Configuration = commonServices.Configuration;
 
+            messageHandler = new HttpClientHandler() { UseCookies = false };
+            pipeline = _httpMessageHandlerFactory.CreatePipeline(messageHandler);
+            client = HttpClientFactory.Create(pipeline);
+            client.BaseAddress = new Uri(Configuration.ContentProviderEndPoint);
+            // Add an Accept header for JSON format.
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         //Temp fix: Remove after 01-01-2016; IHttpMessageHandlerFactory is registered in the DI. 
@@ -71,50 +77,41 @@ namespace DD4T.Providers.Rest
             // DD4T.RestService.WebApi 
 
             if (!urlParameters.EndsWith("/"))
-                urlParameters = string.Format("{0}/", urlParameters);
-
-            HttpClientHandler messageHandler = new HttpClientHandler() { UseCookies = false };
-            var pipeline = this._httpMessageHandlerFactory.CreatePipeline(messageHandler);
-
-            using (var client = HttpClientFactory.Create(pipeline))
             {
-                client.BaseAddress = new Uri(Configuration.ContentProviderEndPoint);
-                // Add an Accept header for JSON format.
-                client.DefaultRequestHeaders.Accept.Add(
-                     new MediaTypeWithQualityHeaderValue("application/json"));
+                urlParameters = string.Format("{0}/", urlParameters);
+            }
+            
+            var message = new HttpRequestMessage(HttpMethod.Get, urlParameters);
 
-                var message = new HttpRequestMessage(HttpMethod.Get, urlParameters);
-
-                // read all http cookies and add it to the request. 
-                // needed to enable session preview functionality
-                try
+            // read all http cookies and add it to the request.
+            // needed to enable session preview functionality
+            try
+            {
+                if(System.Web.HttpContext.Current != null)
                 {
-                    if(System.Web.HttpContext.Current != null)
+                    var cookies = System.Web.HttpContext.Current.Request.Cookies;
+                    var strBuilder = new StringBuilder();
+                    foreach (var item in cookies.AllKeys)
                     {
-                        var cookies = System.Web.HttpContext.Current.Request.Cookies;
-                        var strBuilder = new StringBuilder();
-                        foreach (var item in cookies.AllKeys)
-                        {
-                            var currentKey = string.Format("{0}={1};", item, cookies[item].Value);
-                            Logger.Debug("RequestCookie found -> forwarding cookie -> {0}", currentKey);
-                            strBuilder.Append(currentKey);
-                        }
-                        message.Headers.Add("Cookie", strBuilder.ToString());
+                        var currentKey = string.Format("{0}={1};", item, cookies[item].Value);
+                        Logger.Debug("RequestCookie found -> forwarding cookie -> {0}", currentKey);
+                        strBuilder.Append(currentKey);
                     }
-                }
-                catch
-                {
-                    Logger.Warning("HttpContext is not initialized yet..");
-                }
-                
-                var result = client.SendAsync(message).Result;
-                if(result.IsSuccessStatusCode)
-                {
-                    return result.Content.ReadAsAsync<T>().Result;
+                    message.Headers.Add("Cookie", strBuilder.ToString());
                 }
             }
+            catch
+            {
+                Logger.Warning("HttpContext is not initialized yet..");
+            }
+                
+            var result = client.SendAsync(message).Result;
+            if(result.IsSuccessStatusCode)
+            {
+                return result.Content.ReadAsAsync<T>().Result;
+            }
+
             return default(T);
         }
-
     }
 }
